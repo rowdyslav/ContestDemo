@@ -1,149 +1,79 @@
-import flet as ft
-from aiohttp import ClientSession
 from flet import (
     AppBar,
+    AppView,
     Button,
     Colors,
+    Column,
+    CrossAxisAlignment,
     ElevatedButton,
+    MainAxisAlignment,
     Page,
-    Row,
     TemplateRoute,
     Text,
-    TextAlign,
-    TextThemeStyle,
     View,
+    app,
 )
-
-URL = "http://127.0.0.1:8000"
-
-
-async def go(page: Page, path: str):
-    async def _(e):
-        page.go(path)
-
-    return _
-
-
-async def get_contests_row(page: Page):
-    async with ClientSession() as client:
-        responce = await client.get(f"{URL}/contests/list/")
-    contests = await responce.json()
-    return Row(
-        [
-            Button(
-                contest["title"],
-                width=500,
-                height=500,
-                on_click=await go(page, f"/contests/{contest['title']}"),
-            )
-            for contest in contests
-        ],
-        alignment=ft.MainAxisAlignment.CENTER,
-    )
-
-
-async def get_projects_top(page: Page, contest_title: str):
-    colors = {1: "#C9B037", 2: "#D7D7D7", 3: "#6A3805"}
-
-    async with ClientSession() as client:
-        projects_responce = await client.get(f"{URL}/projects/list/boosts")
-        contests_responce = await client.get(f"{URL}/contests/list")
-    contest = next(
-        contest
-        for contest in await contests_responce.json()
-        if contest["title"] == contest_title
-    )
-    contest_projects = [
-        project
-        for project in await projects_responce.json()
-        if project["_id"] in [project["id"] for project in contest["projects"]]
-    ]
-
-    if not contest_projects:
-        return [
-            Row(
-                [
-                    Text(
-                        "Топа проектов пока что нет...",
-                        theme_style=TextThemeStyle.HEADLINE_LARGE,
-                        text_align=TextAlign.CENTER,
-                    )
-                ],
-                alignment=ft.MainAxisAlignment.CENTER,
-            )
-        ]
-
-    return [
-        Row(
-            [
-                Button(
-                    text=project["title"],
-                    tooltip=f"{project["boosts"]} бустов",
-                    on_click=await go(
-                        page, f"{page.route}/projects/{project['title']}"
-                    ),
-                    icon="WORKSPACE_PREMIUM_ROUNDED",
-                    icon_color=colors.get(index),
-                    height=250,
-                    width=250,
-                )
-                for index, project in enumerate(contest_projects[:3], start=1)
-            ],
-            alignment=ft.MainAxisAlignment.CENTER,
-        ),
-        Row(
-            [
-                Button(
-                    text=project["title"],
-                    tooltip=f"{project["boosts"]} бустов",
-                    on_click=await go(
-                        page, f"{page.route}/projects/{project['title']}"
-                    ),
-                    icon="WORKSPACE_PREMIUM_ROUNDED",
-                    icon_color=Colors.PRIMARY,
-                    height=250,
-                    width=250,
-                )
-                for project in contest_projects[3:]
-            ],
-            alignment=ft.MainAxisAlignment.CENTER,
-        ),
-    ]
+from misc.api_functions import click_boost_project, contests_row, projects_top_rows
 
 
 async def main(page: Page):
     page.title = "ContestDemo"
-    page.vertical_alignment = ft.MainAxisAlignment.CENTER
-    page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
+    page.vertical_alignment = MainAxisAlignment.CENTER
+    page.horizontal_alignment = CrossAxisAlignment.CENTER
 
     async def route_change(e):
         page.views.clear()
-        page.views.append(
-            View(
+
+        troute = TemplateRoute(page.route)
+        if troute.match("/"):
+            view = View(
                 "/",
                 [
                     AppBar(
                         title=Text("ContestDemo"),
                         bgcolor=Colors.SURFACE_CONTAINER_HIGHEST,
                     ),
-                    await get_contests_row(page),
+                    Column(
+                        [
+                            Text(
+                                "Текущие контесты",
+                                size=33,
+                            ),
+                            await contests_row(page),
+                        ],
+                        alignment=MainAxisAlignment.CENTER,
+                        horizontal_alignment=CrossAxisAlignment.CENTER,
+                    ),
                 ],
             )
-        )
-
-        troute = TemplateRoute(page.route)
-
-        if troute.match("/contests/:contest_title"):
-            page.views.append(
-                View(
-                    controls=[
-                        *await get_projects_top(page, troute.contest_title),  # type: ignore
-                        ElevatedButton("Go Home", on_click=lambda _: page.go("/")),
-                    ],
-                )
+        elif troute.match("/contests/:contest_title"):
+            view = View(
+                controls=[
+                    *await projects_top_rows(page, troute.contest_title),  # type: ignore
+                    ElevatedButton("Go Home", on_click=lambda _: page.go("/")),
+                ],
             )
         elif troute.match("/contests/:contest_title/projects/:project_title"):
-            page.views.append(View(controls=[Text("тут типо юзеры будут")]))
+            project_id = (
+                "67516811063070cda071abc9"  # TODO Пока есть только title, буст по id
+            )
+            user = {
+                "id": "66fe78b733afdb2c5807406c",
+                "username": "rowdyslav",
+                "email": "rowdyslav@gmail.com",
+                "name": "Sergey",
+                "surname": "Goretov",
+            }  # TODO Авторизация, чтобы хранить объект пользователя
+            view = View(
+                controls=[
+                    Text("тут типо юзеры будут"),
+                    Button(
+                        "Забустить!",
+                        on_click=await click_boost_project(project_id, user),
+                    ),
+                ]
+            )
+        page.views.append(view)
         page.update()
 
     async def view_pop(e):
@@ -158,4 +88,4 @@ async def main(page: Page):
     page.go(page.route)
 
 
-ft.app(main, view=ft.AppView.WEB_BROWSER)
+app(main, view=AppView.WEB_BROWSER)
