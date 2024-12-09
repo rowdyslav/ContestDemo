@@ -1,18 +1,20 @@
 from aiohttp import ClientSession
-from env import API_URL
 from flet import Page
+from flet.core.control_event import ControlEvent
+
+from env import API_URL
 
 
 async def click_go(page: Page, path: str):
-    async def _(e):
+    async def go(_: ControlEvent):
         page.go(path)
 
-    return _
+    return go
 
 
 async def click_boost_project(project_id, user):
-    async def _(e):
+    async def boost_project(_: ControlEvent):
         async with ClientSession() as client:
             return await client.put(f"{API_URL}/projects/boost/{project_id}", json=user)
 
-    return _
+    return boost_project
