@@ -13,7 +13,7 @@ from flet import (
     app,
 )
 
-from views import Contest, Home, ProjectContainer
+from controls import ContestsContainer, HomeContainer, ProjectsContainer
 
 
 async def main(page: Page):
@@ -26,9 +26,9 @@ async def main(page: Page):
 
         troute = TemplateRoute(page.route)
         if troute.match("/"):
-            container = await Home.view(page)
+            container = await HomeContainer.ainit(page)
         elif troute.match("/contests/:contest_id"):
-            container = await Contest.view(page, troute.contest_id)  # type: ignore
+            container = await ContestsContainer.ainit(page, troute.contest_id)  # type: ignore
         elif troute.match("/contests/:contest_id/projects/:project_id"):
             user = {
                 "id": "66fe78b733afdb2c5807406c",
@@ -37,7 +37,7 @@ async def main(page: Page):
                 "name": "Sergey",
                 "surname": "Goretov",
             }  # TODO Авторизация, чтобы хранить объект пользователя
-            container = await ProjectContainer.view(troute.project_id, user)  # type: ignore
+            container = await ProjectsContainer.ainit(troute.project_id, user)  # type: ignore
         page.views.append(
             View(
                 controls=[
