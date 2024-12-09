@@ -1,5 +1,4 @@
 from aiohttp import ClientSession
-from env import API_URL
 from flet import (
     Button,
     Colors,
@@ -10,15 +9,9 @@ from flet import (
     TextAlign,
     TextThemeStyle,
 )
-from misc.tools import click_go
 
-
-async def click_boost_project(project_id, user):
-    async def _(e):
-        async with ClientSession() as client:
-            return await client.put(f"{API_URL}/projects/boost/{project_id}", json=user)
-
-    return _
+from env import API_URL
+from misc.clicks import click_go
 
 
 async def contests_row(page: Page) -> Row:

@@ -1,19 +1,16 @@
 from flet import (
-    AppBar,
     AppView,
-    Button,
-    Colors,
-    Column,
     CrossAxisAlignment,
-    ElevatedButton,
     MainAxisAlignment,
     Page,
+    RouteChangeEvent,
     TemplateRoute,
-    Text,
     View,
+    ViewPopEvent,
     app,
 )
-from misc.api_functions import click_boost_project, contests_row, projects_top_rows
+
+from views import Contest, Home, Project
 
 
 async def main(page: Page):
@@ -21,42 +18,18 @@ async def main(page: Page):
     page.vertical_alignment = MainAxisAlignment.CENTER
     page.horizontal_alignment = CrossAxisAlignment.CENTER
 
-    async def route_change(e):
+    async def route_change(_: RouteChangeEvent):
         page.views.clear()
 
         troute = TemplateRoute(page.route)
         if troute.match("/"):
             view = View(
                 "/",
-                [
-                    AppBar(
-                        title=Text("ContestDemo"),
-                        bgcolor=Colors.SURFACE_CONTAINER_HIGHEST,
-                    ),
-                    Column(
-                        [
-                            Text(
-                                "Текущие контесты",
-                                size=33,
-                            ),
-                            await contests_row(page),
-                        ],
-                        alignment=MainAxisAlignment.CENTER,
-                        horizontal_alignment=CrossAxisAlignment.CENTER,
-                    ),
-                ],
+                [await Home.view(page)],
             )
-        elif troute.match("/contests/:contest_title"):
-            view = View(
-                controls=[
-                    *await projects_top_rows(page, troute.contest_title),  # type: ignore
-                    ElevatedButton("Go Home", on_click=lambda _: page.go("/")),
-                ],
-            )
-        elif troute.match("/contests/:contest_title/projects/:project_title"):
-            project_id = (
-                "67516811063070cda071abc9"  # TODO Пока есть только title, буст по id
-            )
+        elif troute.match("/contests/:contest_id"):
+            view = View(controls=[await Contest.view(page, troute.contest_id)])  # type: ignore
+        elif troute.match("/contests/:contest_id/projects/:project_id"):
             user = {
                 "id": "66fe78b733afdb2c5807406c",
                 "username": "rowdyslav",
@@ -64,19 +37,11 @@ async def main(page: Page):
                 "name": "Sergey",
                 "surname": "Goretov",
             }  # TODO Авторизация, чтобы хранить объект пользователя
-            view = View(
-                controls=[
-                    Text("тут типо юзеры будут"),
-                    Button(
-                        "Забустить!",
-                        on_click=await click_boost_project(project_id, user),
-                    ),
-                ]
-            )
+            view = View(controls=[await Project.view(troute.project_id, user)])  # type: ignore
         page.views.append(view)
         page.update()
 
-    async def view_pop(e):
+    async def view_pop(_: ViewPopEvent):
         page.views.pop()
         top_view = page.views[-1]
         assert top_view.route
