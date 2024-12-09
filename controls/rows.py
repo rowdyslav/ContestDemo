@@ -13,7 +13,7 @@ async def contests(page: Page) -> Row:
             [
                 await ContestButton.ainit(contest["title"], page, contest["_id"])
                 for contest in await (
-                    await client.get(f"{API_URL}/contests/list/")
+                    await client.get(f"{API_URL}/contests/list")
                 ).json()
             ],
             alignment=MainAxisAlignment.CENTER,
@@ -22,8 +22,8 @@ async def contests(page: Page) -> Row:
 
 async def projects_top(page: Page, contest_id: str) -> list[Row]:
     async with ClientSession() as client:
-        projects_responce = await client.get(f"{API_URL}/projects/list/boosts/")
-        contest_responce = await client.get(f"{API_URL}/contests/get/{contest_id}/")
+        projects_responce = await client.get(f"{API_URL}/projects/list/boosts")
+        contest_responce = await client.get(f"{API_URL}/contests/get/{contest_id}")
     contest_projects = [
         project
         for project in await projects_responce.json()

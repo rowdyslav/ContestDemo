@@ -59,7 +59,7 @@ class ProjectsContainer(CustomContainer):
         async def boost_project(_: ControlEvent):
             async with ClientSession() as client:
                 return await client.put(
-                    f"{API_URL}/projects/boost/{project_id}/", json=user
+                    f"{API_URL}/projects/boost/{project_id}", json=user
                 )
 
         return boost_project
