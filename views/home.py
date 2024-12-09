@@ -19,21 +19,13 @@ class Home(AsyncContainer):
         home = cls()
         home.content = Column(
             [
-                AppBar(
-                    title=Text("ContestDemo"),
-                    bgcolor=Colors.SURFACE_CONTAINER_HIGHEST,
+                Text(
+                    "Текущие контесты",
+                    size=33,
                 ),
-                Column(
-                    [
-                        Text(
-                            "Текущие контесты",
-                            size=33,
-                        ),
-                        await contests_row(page),
-                    ],
-                    alignment=MainAxisAlignment.CENTER,
-                    horizontal_alignment=CrossAxisAlignment.CENTER,
-                ),
-            ]
+                await contests_row(page),
+            ],
+            alignment=MainAxisAlignment.CENTER,
+            horizontal_alignment=CrossAxisAlignment.CENTER,
         )
         return home

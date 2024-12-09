@@ -5,7 +5,7 @@ from misc.clicks import click_boost_project
 from . import AsyncContainer
 
 
-class Project(AsyncContainer):
+class ProjectContainer(AsyncContainer):
     @classmethod
     async def view(cls, project_id: str, user: dict):
         contest = cls()

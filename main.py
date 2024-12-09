@@ -1,16 +1,19 @@
 from flet import (
+    AppBar,
     AppView,
+    Colors,
     CrossAxisAlignment,
     MainAxisAlignment,
     Page,
     RouteChangeEvent,
     TemplateRoute,
+    TextButton,
     View,
     ViewPopEvent,
     app,
 )
 
-from views import Contest, Home, Project
+from views import Contest, Home, ProjectContainer
 
 
 async def main(page: Page):
@@ -23,12 +26,9 @@ async def main(page: Page):
 
         troute = TemplateRoute(page.route)
         if troute.match("/"):
-            view = View(
-                "/",
-                [await Home.view(page)],
-            )
+            container = await Home.view(page)
         elif troute.match("/contests/:contest_id"):
-            view = View(controls=[await Contest.view(page, troute.contest_id)])  # type: ignore
+            container = await Contest.view(page, troute.contest_id)  # type: ignore
         elif troute.match("/contests/:contest_id/projects/:project_id"):
             user = {
                 "id": "66fe78b733afdb2c5807406c",
@@ -37,8 +37,24 @@ async def main(page: Page):
                 "name": "Sergey",
                 "surname": "Goretov",
             }  # TODO Авторизация, чтобы хранить объект пользователя
-            view = View(controls=[await Project.view(troute.project_id, user)])  # type: ignore
-        page.views.append(view)
+            container = await ProjectContainer.view(troute.project_id, user)  # type: ignore
+        page.views.append(
+            View(
+                controls=[
+                    AppBar(
+                        title=TextButton(
+                            "ContestDemo",
+                            on_click=lambda _: page.go("/"),
+                            width=222,
+                            height=222,
+                        ),
+                        bgcolor=Colors.SURFACE_CONTAINER_HIGHEST,
+                        center_title=True,
+                    ),
+                    container,
+                ]
+            )
+        )
         page.update()
 
     async def view_pop(_: ViewPopEvent):
@@ -53,4 +69,4 @@ async def main(page: Page):
     page.go(page.route)
 
 
-app(main, view=AppView.WEB_BROWSER)
+app(main, view=AppView.WEB_BROWSER, port=5000)

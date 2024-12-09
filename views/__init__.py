@@ -17,4 +17,4 @@ class AsyncContainer(Container):
 
 from .contest import Contest
 from .home import Home
-from .project import Project
+from .project import ProjectContainer

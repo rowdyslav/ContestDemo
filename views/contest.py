@@ -9,10 +9,5 @@ class Contest(AsyncContainer):
     @classmethod
     async def view(cls, page: Page, contest_id: str):
         contest = cls()
-        contest.content = Column(
-            [
-                *await projects_top_rows(page, contest_id),  # type: ignore
-                Button("Go Home", on_click=lambda _: page.go("/")),
-            ]
-        )
+        contest.content = Column([*await projects_top_rows(page, contest_id)])
         return contest

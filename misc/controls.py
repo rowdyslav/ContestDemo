@@ -24,7 +24,7 @@ async def contests_row(page: Page) -> Row:
                 contest["title"],
                 width=500,
                 height=500,
-                on_click=await click_go(page, f"/contests/{contest['title']}"),
+                on_click=await click_go(page, f"/contests/{contest['_id']}"),
             )
             for contest in contests
         ],
@@ -32,16 +32,16 @@ async def contests_row(page: Page) -> Row:
     )
 
 
-async def projects_top_rows(page: Page, contest_title: str) -> list[Row]:
+async def projects_top_rows(page: Page, contest_id: str) -> list[Row]:
     colors = {1: "#C9B037", 2: "#D7D7D7", 3: "#6A3805"}
 
     async with ClientSession() as client:
-        projects_responce = await client.get(f"{API_URL}/projects/list/boosts")
-        contests_responce = await client.get(f"{API_URL}/contests/list")
+        projects_responce = await client.get(f"{API_URL}/projects/list/boosts/")
+        contests_responce = await client.get(f"{API_URL}/contests/list/")
     contest = next(
         contest
         for contest in await contests_responce.json()
-        if contest["title"] == contest_title
+        if contest["_id"] == contest_id
     )
     contest_projects = [
         project
@@ -70,7 +70,7 @@ async def projects_top_rows(page: Page, contest_title: str) -> list[Row]:
                     text=project["title"],
                     tooltip=f"Бустов {project["boosts"]}",
                     on_click=await click_go(
-                        page, f"{page.route}/projects/{project['title']}"
+                        page, f"{page.route}/projects/{project['_id']}"
                     ),
                     icon="WORKSPACE_PREMIUM_ROUNDED",
                     icon_color=colors.get(index),
@@ -87,7 +87,7 @@ async def projects_top_rows(page: Page, contest_title: str) -> list[Row]:
                     text=project["title"],
                     tooltip=f"Бустов {project["boosts"]}",
                     on_click=await click_go(
-                        page, f"{page.route}/projects/{project['title']}"
+                        page, f"{page.route}/projects/{project['_id']}"
                     ),
                     icon="WORKSPACE_PREMIUM_ROUNDED",
                     icon_color=Colors.PRIMARY,
