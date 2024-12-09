@@ -26,18 +26,12 @@ async def main(page: Page):
 
         troute = TemplateRoute(page.route)
         if troute.match("/"):
-            container = await HomeContainer.ainit(page)
+            container_type, args = HomeContainer, (page,)
         elif troute.match("/contests/:contest_id"):
-            container = await ContestsContainer.ainit(page, troute.contest_id)  # type: ignore
+            container_type, args = ContestsContainer, (page, troute.contest_id)  # type: ignore
         elif troute.match("/contests/:contest_id/projects/:project_id"):
-            user = {
-                "id": "66fe78b733afdb2c5807406c",
-                "username": "rowdyslav",
-                "email": "rowdyslav@gmail.com",
-                "name": "Sergey",
-                "surname": "Goretov",
-            }  # TODO Авторизация, чтобы хранить объект пользователя
-            container = await ProjectsContainer.ainit(troute.project_id, user)  # type: ignore
+            user = ...  # TODO Авторизация, чтобы хранить объект пользователя
+            container_type, args = ProjectsContainer, (troute.project_id, user)  # type: ignore
         page.views.append(
             View(
                 controls=[
@@ -51,7 +45,7 @@ async def main(page: Page):
                         bgcolor=Colors.SURFACE_CONTAINER_HIGHEST,
                         center_title=True,
                     ),
-                    container,
+                    await container_type.ainit(*args),  # type: ignore
                 ]
             )
         )
