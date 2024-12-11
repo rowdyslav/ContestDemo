@@ -32,8 +32,8 @@ class CustomContainer(Container):
 class HomeContainer(CustomContainer):
     @classmethod
     async def ainit(cls, page: Page):
-        home = cls()
-        home.content = Column(
+        home_container = cls()
+        home_container.content = Column(
             [
                 Text(
                     "Текущие контесты",
@@ -46,13 +46,13 @@ class HomeContainer(CustomContainer):
             ],
             horizontal_alignment=CrossAxisAlignment.CENTER,
         )
-        return home
+        return home_container
 
 
 class ContestContainer(CustomContainer):
     @classmethod
     async def ainit(cls, page: Page, contest_id: str):
-        contest = cls()
+        contest_container = cls()
         projects = await projects_top(page, contest_id)
         if projects:
             content = Column(
@@ -72,8 +72,8 @@ class ContestContainer(CustomContainer):
                 ),
                 MainAxisAlignment.CENTER,
             )
-        contest.content = content
-        return contest
+        contest_container.content = content
+        return contest_container
 
 
 class ProjectContainer(CustomContainer):
@@ -89,8 +89,8 @@ class ProjectContainer(CustomContainer):
 
     @classmethod
     async def ainit(cls, project_id: str, user: dict):
-        contest = cls()
-        contest.content = Column(
+        project_container = cls()
+        project_container.content = Column(
             [
                 Text("тут типо юзеры будут"),
                 Button(
@@ -99,4 +99,4 @@ class ProjectContainer(CustomContainer):
                 ),
             ]
         )
-        return contest
+        return project_container
