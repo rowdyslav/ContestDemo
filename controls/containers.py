@@ -11,7 +11,6 @@ from flet import (
     Page,
     Row,
     Text,
-    TextAlign,
     TextThemeStyle,
 )
 from flet.core.control_event import ControlEvent

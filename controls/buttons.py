@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Optional, Self
+from typing import Self
 
 from flet import Button, Colors, Page
 from flet.core.control_event import ControlEvent
