@@ -1,4 +1,5 @@
 from aiohttp import ClientSession
+from beanie import PydanticObjectId
 from flet import Page
 
 from env import API_URL
@@ -14,7 +15,7 @@ async def contests(page: Page) -> list[ContestButton]:
         ]
 
 
-async def projects_top(page: Page, contest_id: str) -> list[ProjectButton]:
+async def projects_top(page: Page, contest_id: PydanticObjectId) -> list[ProjectButton]:
     async with ClientSession() as client:
         projects_responce = await client.get(f"{API_URL}/projects/list/boosts/")
         contest_responce = await client.get(f"{API_URL}/contests/get/{contest_id}")

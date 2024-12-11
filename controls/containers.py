@@ -2,6 +2,7 @@ from abc import abstractmethod
 from typing import Self
 
 from aiohttp import ClientSession
+from beanie import PydanticObjectId
 from flet import (
     Button,
     Column,
@@ -13,7 +14,9 @@ from flet import (
     Text,
     TextThemeStyle,
 )
+from flet.core import alignment
 from flet.core.control_event import ControlEvent
+from pydantic import EmailStr
 
 from env import API_URL
 
@@ -50,7 +53,7 @@ class HomeContainer(CustomContainer):
 
 class ContestContainer(CustomContainer):
     @classmethod
-    async def ainit(cls, page: Page, contest_id: str):
+    async def ainit(cls, page: Page, contest_id: PydanticObjectId):
         contest_container = cls()
         projects = await projects_top(page, contest_id)
         if projects:
@@ -62,22 +65,22 @@ class ContestContainer(CustomContainer):
                 horizontal_alignment=CrossAxisAlignment.CENTER,
             )
         else:
-            content = Row(
-                (
-                    Text(
-                        "Проектов в этом контесте пока что нет...",
-                        theme_style=TextThemeStyle.HEADLINE_LARGE,
-                    ),
+            content = Container(
+                Text(
+                    "Проектов в этом контесте пока что нет...",
+                    theme_style=TextThemeStyle.HEADLINE_LARGE,
                 ),
-                MainAxisAlignment.CENTER,
+                alignment=alignment.center,
             )
         contest_container.content = content
         return contest_container
 
 
 class ProjectContainer(CustomContainer):
+    User = dict[str, str | PydanticObjectId | EmailStr]
+
     @staticmethod
-    async def click_boost_project(project_id, user):
+    async def click_boost_project(project_id: PydanticObjectId, user: User):
         async def boost_project(_: ControlEvent):
             async with ClientSession() as client:
                 return await client.put(
@@ -87,7 +90,7 @@ class ProjectContainer(CustomContainer):
         return boost_project
 
     @classmethod
-    async def ainit(cls, project_id: str, user: dict):
+    async def ainit(cls, project_id: PydanticObjectId, user: User):
         project_container = cls()
         project_container.content = Column(
             [
