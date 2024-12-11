@@ -28,7 +28,7 @@ class CustomContainer(Container):
     @abstractmethod
     async def ainit(cls, page: Page, **context) -> Self:
         """Реализация метода должна устанавливать Container.content и возвращать объет класса"""
-        pass
+        return cls()
 
 
 class HomeContainer(CustomContainer):
