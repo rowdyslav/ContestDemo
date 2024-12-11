@@ -1,3 +1,3 @@
-from .containers import ContestsContainer, HomeContainer, ProjectsContainer
+from .containers import ContestContainer, HomeContainer, ProjectContainer
 
-__all__ = [HomeContainer, ContestsContainer, ProjectsContainer]
+__all__ = [HomeContainer, ContestContainer, ProjectContainer]

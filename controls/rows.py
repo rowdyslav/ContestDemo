@@ -1,5 +1,5 @@
 from aiohttp import ClientSession
-from flet import MainAxisAlignment, Page, Row, Text, TextAlign, TextThemeStyle
+from flet import Column, MainAxisAlignment, Page, Row, Text, TextAlign, TextThemeStyle
 
 from controls.buttons import ProjectButton
 from env import API_URL
@@ -7,20 +7,15 @@ from env import API_URL
 from .buttons import ContestButton
 
 
-async def contests(page: Page) -> Row:
+async def contests(page: Page) -> list[ContestButton]:
     async with ClientSession() as client:
-        return Row(
-            [
-                await ContestButton.ainit(contest["title"], page, contest["_id"])
-                for contest in await (
-                    await client.get(f"{API_URL}/contests/list")
-                ).json()
-            ],
-            alignment=MainAxisAlignment.CENTER,
-        )
+        return [
+            await ContestButton.ainit(contest["title"], page, contest["_id"])
+            for contest in await (await client.get(f"{API_URL}/contests/list")).json()
+        ]
 
 
-async def projects_top(page: Page, contest_id: str) -> list[Row]:
+async def projects_top(page: Page, contest_id: str) -> list[ProjectButton]:
     async with ClientSession() as client:
         projects_responce = await client.get(f"{API_URL}/projects/list/boosts")
         contest_responce = await client.get(f"{API_URL}/contests/get/{contest_id}")
@@ -34,43 +29,13 @@ async def projects_top(page: Page, contest_id: str) -> list[Row]:
         ]
     ]
 
-    if not contest_projects:
-        return [
-            Row(
-                [
-                    Text(
-                        "Проектов в этом контесте пока что нет...",
-                        theme_style=TextThemeStyle.HEADLINE_LARGE,
-                        text_align=TextAlign.CENTER,
-                    )
-                ],
-                alignment=MainAxisAlignment.CENTER,
-            )
-        ]
     return [
-        Row(
-            [
-                await ProjectButton.ainit(
-                    project["title"],
-                    f"Бустов {project["boosts"]}",
-                    page,
-                    project["_id"],
-                    place,
-                )
-                for place, project in enumerate(contest_projects[:3], start=1)
-            ],
-            alignment=MainAxisAlignment.CENTER,
-        ),
-        Row(
-            [
-                await ProjectButton.ainit(
-                    project["title"],
-                    f"Бустов {project["boosts"]}",
-                    page,
-                    project["_id"],
-                )
-                for project in contest_projects[3:]
-            ],
-            alignment=MainAxisAlignment.CENTER,
-        ),
+        await ProjectButton.ainit(
+            project["title"],
+            f"Бустов {project["boosts"]}",
+            place,
+            page,
+            project["_id"],
+        )
+        for place, project in enumerate(contest_projects, start=1)
     ]

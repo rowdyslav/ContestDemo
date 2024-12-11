@@ -1,3 +1,5 @@
+from asyncio import run
+
 from flet import (
     AppBar,
     AppView,
@@ -10,10 +12,11 @@ from flet import (
     TextButton,
     View,
     ViewPopEvent,
-    app,
+    app_async,
 )
+from flet.core.control_event import ControlEvent
 
-from controls import ContestsContainer, HomeContainer, ProjectsContainer
+from controls import ContestContainer, HomeContainer, ProjectContainer
 
 
 async def main(page: Page):
@@ -21,17 +24,17 @@ async def main(page: Page):
     page.vertical_alignment = MainAxisAlignment.CENTER
     page.horizontal_alignment = CrossAxisAlignment.CENTER
 
-    async def route_change(_: RouteChangeEvent):
+    async def route_change(_: RouteChangeEvent | ControlEvent):
         page.views.clear()
 
         troute = TemplateRoute(page.route)
         if troute.match("/"):
             container_type, args = HomeContainer, (page,)
         elif troute.match("/contests/:contest_id"):
-            container_type, args = ContestsContainer, (page, troute.contest_id)  # type: ignore
+            container_type, args = ContestContainer, (page, troute.contest_id)  # type: ignore
         elif troute.match("/contests/:contest_id/projects/:project_id"):
             user = ...  # TODO Авторизация, чтобы хранить объект пользователя
-            container_type, args = ProjectsContainer, (troute.project_id, user)  # type: ignore
+            container_type, args = ProjectContainer, (troute.project_id, user)  # type: ignore
         page.views.append(
             View(
                 controls=[
@@ -58,9 +61,14 @@ async def main(page: Page):
         page.go(top_view.route)
 
     page.on_route_change = route_change
+    page.on_connect = route_change
     page.on_view_pop = view_pop
 
     page.go(page.route)
 
 
-app(main, view=AppView.WEB_BROWSER, port=5000)
+async def app():
+    await app_async(main, view=AppView.WEB_BROWSER, port=5000)
+
+
+run(app())

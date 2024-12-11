@@ -54,16 +54,16 @@ class ProjectButton(CustomButton):
         cls,
         text: str,
         tooltip: str | TooltipValue,
+        place: int,
         page: Page,
         project_id: str,
-        place: Optional[int] = None,
     ) -> Self:
         project_button = cls()
         project_button.text = text
         project_button.tooltip = tooltip
+        project_button.icon_color = cls.place_colors.get(place) or Colors.PRIMARY
 
         project_button.on_click = await click_go(
             page, f"{page.route}/projects/{project_id}"
         )
-        project_button.icon_color = cls.place_colors[place] if place else Colors.PRIMARY
         return project_button

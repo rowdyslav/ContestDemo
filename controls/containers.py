@@ -11,6 +11,8 @@ from flet import (
     Page,
     Row,
     Text,
+    TextAlign,
+    TextThemeStyle,
 )
 from flet.core.control_event import ControlEvent
 
@@ -22,7 +24,7 @@ from .rows import contests, projects_top
 class CustomContainer(Container):
     @classmethod
     @abstractmethod
-    async def ainit(cls, page, **context) -> Self:
+    async def ainit(cls, page: Page, **context) -> Self:
         """Реализация метода должна устанавливать Container.content и возвращать объет класса"""
         pass
 
@@ -37,23 +39,44 @@ class HomeContainer(CustomContainer):
                     "Текущие контесты",
                     size=33,
                 ),
-                await contests(page),
+                Row(
+                    await contests(page),
+                    alignment=MainAxisAlignment.CENTER,
+                ),
             ],
-            alignment=MainAxisAlignment.CENTER,
             horizontal_alignment=CrossAxisAlignment.CENTER,
         )
         return home
 
 
-class ContestsContainer(CustomContainer):
+class ContestContainer(CustomContainer):
     @classmethod
     async def ainit(cls, page: Page, contest_id: str):
         contest = cls()
-        contest.content = Column(await projects_top(page, contest_id))
+        projects = await projects_top(page, contest_id)
+        if projects:
+            content = Column(
+                (
+                    Row(projects[:3], alignment=MainAxisAlignment.CENTER),
+                    Row(projects[3:], alignment=MainAxisAlignment.CENTER),
+                ),
+                horizontal_alignment=CrossAxisAlignment.CENTER,
+            )
+        else:
+            content = Row(
+                (
+                    Text(
+                        "Проектов в этом контесте пока что нет...",
+                        theme_style=TextThemeStyle.HEADLINE_LARGE,
+                    ),
+                ),
+                MainAxisAlignment.CENTER,
+            )
+        contest.content = content
         return contest
 
 
-class ProjectsContainer(CustomContainer):
+class ProjectContainer(CustomContainer):
     @staticmethod
     async def click_boost_project(project_id, user):
         async def boost_project(_: ControlEvent):
