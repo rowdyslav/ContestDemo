@@ -9,6 +9,8 @@ from flet.core.tooltip import TooltipValue
 class CustomButton(Button):
     @staticmethod
     async def click_go(page: Page, path: str):
+        """Возвращает асинхронную функцию для перехода страницы page по пути path"""
+
         async def go(_: ControlEvent):
             page.go(path)
 
@@ -32,9 +34,12 @@ class ContestButton(CustomButton):
         self.height = 500
 
     @classmethod
-    async def ainit(cls, text: str, page: Page, *, contest_id: str) -> Self:
+    async def ainit(
+        cls, text: str, tooltip: TooltipValue = None, *, page: Page, contest_id: str
+    ) -> Self:
         contest_button = cls()
         contest_button.text = text
+        contest_button.tooltip = tooltip
 
         contest_button.on_click = await cls.click_go(page, f"/contests/{contest_id}")
         return contest_button
@@ -55,11 +60,11 @@ class ProjectButton(CustomButton):
     async def ainit(
         cls,
         text: str,
-        tooltip: TooltipValue,
+        tooltip: TooltipValue = None,
         *,
-        place: int,
         page: Page,
         project_id: str,
+        place: int,
     ) -> Self:
         project_button = cls()
         project_button.text = text

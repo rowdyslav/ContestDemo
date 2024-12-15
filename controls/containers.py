@@ -20,7 +20,7 @@ from pydantic import EmailStr
 
 from env import API_URL
 
-from .rows import contests, projects_top
+from .from_api import contests, projects_top
 
 
 class CustomContainer(Container):
@@ -28,7 +28,8 @@ class CustomContainer(Container):
     @abstractmethod
     async def ainit(cls, page: Page, **context) -> Self:
         """Реализация метода должна устанавливать Container.content и возвращать объет класса"""
-        return cls()
+        custom_container = cls()
+        return custom_container
 
 
 class HomeContainer(CustomContainer):
