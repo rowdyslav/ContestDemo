@@ -6,19 +6,21 @@ from flet.core.control_event import ControlEvent
 from flet.core.tooltip import TooltipValue
 
 
-async def click_go(page: Page, path: str):
-    async def go(_: ControlEvent):
-        page.go(path)
-
-    return go
-
-
 class CustomButton(Button):
+    @staticmethod
+    async def click_go(page: Page, path: str):
+        async def go(_: ControlEvent):
+            page.go(path)
+
+        return go
+
     @classmethod
     @abstractmethod
-    async def ainit(cls) -> Self:
-        """Реализация метода должна устанавливать Button.text, Button.on_click и возвращать объет класса"""
-        pass
+    async def ainit(cls, text: str, tooltip: TooltipValue) -> Self:
+        """Реализация метода должна устанавливать Button.text, Button.on_click, опционально Button.tooltip и возвращать объет класса"""
+        custom_button = cls()
+        custom_button.text = text
+        custom_button.tooltip = tooltip
 
 
 class ContestButton(CustomButton):
@@ -30,11 +32,11 @@ class ContestButton(CustomButton):
         self.height = 500
 
     @classmethod
-    async def ainit(cls, text: str, page: Page, contest_id: str) -> Self:
+    async def ainit(cls, text: str, page: Page, *, contest_id: str) -> Self:
         contest_button = cls()
         contest_button.text = text
 
-        contest_button.on_click = await click_go(page, f"/contests/{contest_id}")
+        contest_button.on_click = await cls.click_go(page, f"/contests/{contest_id}")
         return contest_button
 
 
@@ -53,7 +55,8 @@ class ProjectButton(CustomButton):
     async def ainit(
         cls,
         text: str,
-        tooltip: str | TooltipValue,
+        tooltip: TooltipValue,
+        *,
         place: int,
         page: Page,
         project_id: str,
@@ -63,7 +66,7 @@ class ProjectButton(CustomButton):
         project_button.tooltip = tooltip
         project_button.icon_color = cls.place_colors.get(place) or Colors.PRIMARY
 
-        project_button.on_click = await click_go(
+        project_button.on_click = await cls.click_go(
             page, f"{page.route}/projects/{project_id}"
         )
         return project_button

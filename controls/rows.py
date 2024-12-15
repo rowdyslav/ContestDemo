@@ -10,7 +10,7 @@ from .buttons import ContestButton, ProjectButton
 async def contests(page: Page) -> list[ContestButton]:
     async with ClientSession() as client:
         return [
-            await ContestButton.ainit(contest["title"], page, contest["_id"])
+            await ContestButton.ainit(contest["title"], page, contest_id=contest["_id"])
             for contest in await (await client.get(f"{API_URL}/contests/list/")).json()
         ]
 
@@ -33,9 +33,9 @@ async def projects_top(page: Page, contest_id: PydanticObjectId) -> list[Project
         await ProjectButton.ainit(
             project["title"],
             f"Бустов {project["boosts"]}",
-            place,
-            page,
-            project["_id"],
+            place=place,
+            page=page,
+            project_id=project["_id"],
         )
         for place, project in enumerate(contest_projects, start=1)
     ]
