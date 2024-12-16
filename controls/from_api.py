@@ -8,6 +8,8 @@ from .buttons import ContestButton, ProjectButton
 
 
 async def contests(page: Page) -> list[ContestButton]:
+    """Возвращает список ContestButton из API"""
+
     async with ClientSession() as client:
         return [
             await ContestButton.async_init(
@@ -18,6 +20,8 @@ async def contests(page: Page) -> list[ContestButton]:
 
 
 async def projects_top(page: Page, contest_id: PydanticObjectId) -> list[ProjectButton]:
+    """Возвращает список ProjectButton из API, отсортированный по бустам"""
+
     async with ClientSession() as client:
         projects_responce = await client.get(f"{API_URL}/projects/list/boosts/")
         contest_responce = await client.get(f"{API_URL}/contests/get/{contest_id}")

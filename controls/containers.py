@@ -24,6 +24,8 @@ from .from_api import contests, projects_top
 
 
 class CustomContainer(Container):
+    """Container с асихнронной инициализацией async_init, который представляет собой страницу сайта"""
+
     @classmethod
     @abstractmethod
     async def async_init(cls) -> Self:
@@ -33,6 +35,8 @@ class CustomContainer(Container):
 
 
 class HomeContainer(CustomContainer):
+    """Container для индекса сайта"""
+
     @classmethod
     async def async_init(cls, *, page: Page):
         home_container = cls()
@@ -53,6 +57,8 @@ class HomeContainer(CustomContainer):
 
 
 class ContestContainer(CustomContainer):
+    """Container для /contests/{contest_id}"""
+
     @classmethod
     async def async_init(cls, *, page: Page, contest_id: PydanticObjectId):
         contest_container = cls()
@@ -78,10 +84,15 @@ class ContestContainer(CustomContainer):
 
 
 class ProjectContainer(CustomContainer):
+    """Container для /contests/{contest_id}/projects/{project_id}
+    со вспомогательным статик методом click_boost_project для буста данного проекта"""
+
     User = dict[str, str | PydanticObjectId | EmailStr]
 
     @staticmethod
     async def click_boost_project(project_id: PydanticObjectId, user: User):
+        """Возвращает асинхронную функцию для буста проекта project_id юзером user"""
+
         async def boost_project(_: ControlEvent):
             async with ClientSession() as client:
                 return await client.put(

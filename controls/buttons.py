@@ -7,6 +7,8 @@ from flet.core.tooltip import TooltipValue
 
 
 class CustomButton(Button):
+    """Button, с асихнронной инициализацией async_init и вспомогательным статик методом click_go для навигации по странице"""
+
     @staticmethod
     async def click_go(page: Page, path: str):
         """Возвращает асинхронную функцию для перехода страницы page по пути path"""
@@ -19,19 +21,19 @@ class CustomButton(Button):
     @classmethod
     @abstractmethod
     async def async_init(cls, text: str, tooltip: TooltipValue) -> Self:
-        """Реализация метода должна устанавливать Button.text, Button.on_click, опционально Button.tooltip и возвращать объет класса"""
+        """Реализация метода должна устанавливать Button.text, Button.tooltip, Button.on_click и возвращать объет класса"""
         custom_button = cls()
         custom_button.text = text
         custom_button.tooltip = tooltip
 
 
 class ContestButton(CustomButton):
-    """Button, представляющая карточку контеста"""
+    """Button, представляющий контест"""
 
     def __init__(self):
         super().__init__()
-        self.width = 500
-        self.height = 500
+        self.width = 555
+        self.height = 555
 
     @classmethod
     async def async_init(
@@ -46,7 +48,7 @@ class ContestButton(CustomButton):
 
 
 class ProjectButton(CustomButton):
-    """Button, представляющая карточку проекта"""
+    """Button, представляющий проект"""
 
     place_colors = {1: "#C9B037", 2: "#D7D7D7", 3: "#6A3805"}
 
