@@ -68,7 +68,7 @@ async def main(page: Page):
 
 
 async def app():
-    await app_async(main, view=AppView.WEB_BROWSER, port=5000)
+    await app_async(main, view=AppView.WEB_BROWSER)
 
 
 run(app())
