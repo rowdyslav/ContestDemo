@@ -18,7 +18,7 @@ class CustomButton(Button):
 
     @classmethod
     @abstractmethod
-    async def ainit(cls, text: str, tooltip: TooltipValue) -> Self:
+    async def async_init(cls, text: str, tooltip: TooltipValue) -> Self:
         """Реализация метода должна устанавливать Button.text, Button.on_click, опционально Button.tooltip и возвращать объет класса"""
         custom_button = cls()
         custom_button.text = text
@@ -34,7 +34,7 @@ class ContestButton(CustomButton):
         self.height = 500
 
     @classmethod
-    async def ainit(
+    async def async_init(
         cls, text: str, tooltip: TooltipValue = None, *, page: Page, contest_id: str
     ) -> Self:
         contest_button = cls()
@@ -57,7 +57,7 @@ class ProjectButton(CustomButton):
         self.icon = "WORKSPACE_PREMIUM_ROUNDED"
 
     @classmethod
-    async def ainit(
+    async def async_init(
         cls,
         text: str,
         tooltip: TooltipValue = None,

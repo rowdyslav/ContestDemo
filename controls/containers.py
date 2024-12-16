@@ -26,7 +26,7 @@ from .from_api import contests, projects_top
 class CustomContainer(Container):
     @classmethod
     @abstractmethod
-    async def ainit(cls, page: Page, **context) -> Self:
+    async def async_init(cls) -> Self:
         """Реализация метода должна устанавливать Container.content и возвращать объет класса"""
         custom_container = cls()
         return custom_container
@@ -34,7 +34,7 @@ class CustomContainer(Container):
 
 class HomeContainer(CustomContainer):
     @classmethod
-    async def ainit(cls, page: Page):
+    async def async_init(cls, *, page: Page):
         home_container = cls()
         home_container.content = Column(
             [
@@ -54,7 +54,7 @@ class HomeContainer(CustomContainer):
 
 class ContestContainer(CustomContainer):
     @classmethod
-    async def ainit(cls, page: Page, contest_id: PydanticObjectId):
+    async def async_init(cls, *, page: Page, contest_id: PydanticObjectId):
         contest_container = cls()
         projects = await projects_top(page, contest_id)
         if projects:
@@ -91,7 +91,7 @@ class ProjectContainer(CustomContainer):
         return boost_project
 
     @classmethod
-    async def ainit(cls, project_id: PydanticObjectId, user: User):
+    async def async_init(cls, *, project_id: PydanticObjectId, user: User):
         project_container = cls()
         project_container.content = Column(
             [
