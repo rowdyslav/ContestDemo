@@ -20,7 +20,7 @@ from pydantic import EmailStr
 
 from env import API_URL
 
-from .from_api import contests, projects_top
+from .from_api import contests, project_users, projects_top
 
 
 class CustomContainer(Container):
@@ -106,7 +106,8 @@ class ProjectContainer(CustomContainer):
         project_container = cls()
         project_container.content = Column(
             [
-                Text("тут типо юзеры будут"),
+                Text("Участники проекта"),
+                Row(await project_users(project_id)),
                 Button(
                     "Забустить!",
                     on_click=await cls.click_boost_project(project_id, user),
