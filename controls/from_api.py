@@ -1,6 +1,6 @@
 from aiohttp import ClientSession
 from beanie import PydanticObjectId
-from flet import CircleAvatar, Page
+from flet import CircleAvatar, Page, Colors
 
 from env import API_URL
 
@@ -57,6 +57,13 @@ async def project_users(project_id: PydanticObjectId) -> list[CircleAvatar]:
             for user_link in (await project_responce.json())["users"]
         ]
     return [
-        CircleAvatar(foreground_image_src=user["picture"], tooltip=user["username"])
+        CircleAvatar(
+            width=333,
+            height=333,
+            foreground_image_src=user["avatar"],
+            background_image_src=user["avatar"],
+            tooltip=user["username"],
+            bgcolor=Colors.TRANSPARENT,
+        )
         for user in users
     ]
