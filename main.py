@@ -1,9 +1,7 @@
-from asyncio import run
+import asyncio
 
 from flet import (
     AppBar,
-    AppView,
-    Colors,
     CrossAxisAlignment,
     MainAxisAlignment,
     Page,
@@ -30,7 +28,7 @@ async def main(page: Page):
         troute = TemplateRoute(page.route)
         if troute.match("/"):
             container_type, args = HomeContainer, {"page": page}
-        elif troute.match("/contests/:contest_id"):
+        if troute.match("/contests/:contest_id"):
             container_type, args = ContestContainer, {"page": page, "contest_id": troute.contest_id}  # type: ignore
         elif troute.match("/contests/:contest_id/projects/:project_id"):
             user = ...  # TODO Авторизация, чтобы хранить объект пользователя
@@ -45,7 +43,6 @@ async def main(page: Page):
                             width=222,
                             height=222,
                         ),
-                        bgcolor=Colors.SURFACE_CONTAINER_HIGHEST,
                         center_title=True,
                     ),
                     await container_type.async_init(**args),  # type: ignore
@@ -67,8 +64,4 @@ async def main(page: Page):
     page.go(page.route)
 
 
-async def app():
-    await app_async(main, view=AppView.WEB_BROWSER)
-
-
-run(app())
+asyncio.run(app_async(main))

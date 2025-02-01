@@ -1,13 +1,15 @@
+"""Функции возвращающие из ContestApi сущности, нужные приложению"""
+
 from aiohttp import ClientSession
 from beanie import PydanticObjectId
-from flet import CircleAvatar, Page, Colors
+from flet import CircleAvatar, Column, CrossAxisAlignment, Page, Text, TextThemeStyle
 
 from env import API_URL
 
 from .buttons import ContestButton, ProjectButton
 
 
-async def contests(page: Page) -> list[ContestButton]:
+async def get_contests(page: Page) -> list[ContestButton]:
     """Возвращает контесты в виде списка ContestButton"""
 
     async with ClientSession() as client:
@@ -19,7 +21,9 @@ async def contests(page: Page) -> list[ContestButton]:
         ]
 
 
-async def projects_top(page: Page, contest_id: PydanticObjectId) -> list[ProjectButton]:
+async def get_contest_top(
+    page: Page, contest_id: PydanticObjectId
+) -> list[ProjectButton]:
     """Возвращает топ проектов по бустам в виде списка ProjectButton"""
 
     async with ClientSession() as client:
@@ -47,7 +51,7 @@ async def projects_top(page: Page, contest_id: PydanticObjectId) -> list[Project
     ]
 
 
-async def project_users(project_id: PydanticObjectId) -> list[CircleAvatar]:
+async def get_project_users(project_id: PydanticObjectId) -> list[Column]:
     """Возвращает аватарки пользователей проекта"""
 
     async with ClientSession() as client:
@@ -57,13 +61,19 @@ async def project_users(project_id: PydanticObjectId) -> list[CircleAvatar]:
             for user_link in (await project_responce.json())["users"]
         ]
     return [
-        CircleAvatar(
-            width=333,
-            height=333,
-            foreground_image_src=user["avatar"],
-            background_image_src=user["avatar"],
-            tooltip=user["username"],
-            bgcolor=Colors.TRANSPARENT,
+        Column(
+            [
+                Text(
+                    user["username"],
+                    theme_style=TextThemeStyle.BODY_LARGE,
+                ),
+                CircleAvatar(
+                    width=222,
+                    height=222,
+                    foreground_image_src=f"{API_URL}/users/get_avatar/{user['_id']}",
+                ),
+            ],
+            horizontal_alignment=CrossAxisAlignment.CENTER,
         )
         for user in users
     ]

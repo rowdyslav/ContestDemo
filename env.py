@@ -1,3 +1,5 @@
+"""Env переменные"""
+
 from environs import Env
 
 env = Env()

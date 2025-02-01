@@ -1,3 +1,5 @@
+"""Контейнеры, представляющие страницы сайта"""
+
 from abc import abstractmethod
 from typing import Self
 
@@ -20,7 +22,7 @@ from pydantic import EmailStr
 
 from env import API_URL
 
-from .from_api import contests, project_users, projects_top
+from .from_api import get_contest_top, get_contests, get_project_users
 
 
 class CustomContainer(Container):
@@ -44,10 +46,10 @@ class HomeContainer(CustomContainer):
             [
                 Text(
                     "Текущие контесты",
-                    size=33,
+                    theme_style=TextThemeStyle.HEADLINE_LARGE,
                 ),
                 Row(
-                    await contests(page),
+                    await get_contests(page),
                     alignment=MainAxisAlignment.CENTER,
                 ),
             ],
@@ -62,7 +64,7 @@ class ContestContainer(CustomContainer):
     @classmethod
     async def async_init(cls, *, page: Page, contest_id: PydanticObjectId):
         contest_container = cls()
-        projects = await projects_top(page, contest_id)
+        projects = await get_contest_top(page, contest_id)
         if projects:
             content = Column(
                 (
@@ -85,33 +87,36 @@ class ContestContainer(CustomContainer):
 
 class ProjectContainer(CustomContainer):
     """Container для /contests/{contest_id}/projects/{project_id}
-    со вспомогательным статик методом click_boost_project для буста данного проекта"""
+    со вспомогательным статик методом boost_on_click для буста данного проекта"""
 
     User = dict[str, str | PydanticObjectId | EmailStr]
 
     @staticmethod
-    async def click_boost_project(project_id: PydanticObjectId, user: User):
+    async def boost_on_click(project_id: PydanticObjectId, user: User):
         """Возвращает асинхронную функцию для буста проекта project_id юзером user"""
 
-        async def boost_project(_: ControlEvent):
+        async def boost(_: ControlEvent):
             async with ClientSession() as client:
                 return await client.put(
                     f"{API_URL}/projects/boost/{project_id}", json=user
                 )
 
-        return boost_project
+        return boost
 
     @classmethod
     async def async_init(cls, *, project_id: PydanticObjectId, user: User):
         project_container = cls()
         project_container.content = Column(
             [
-                Text("Участники проекта"),
-                Row(await project_users(project_id)),
+                Text("Участники проекта", theme_style=TextThemeStyle.HEADLINE_MEDIUM),
+                Row(await get_project_users(project_id), MainAxisAlignment.CENTER),
                 Button(
                     "Забустить!",
-                    on_click=await cls.click_boost_project(project_id, user),
+                    "FAVORITE",
+                    height=55,
+                    on_click=await cls.boost_on_click(project_id, user),
                 ),
-            ]
+            ],
+            horizontal_alignment=CrossAxisAlignment.CENTER,
         )
         return project_container
